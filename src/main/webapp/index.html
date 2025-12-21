@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triángulo Rubik 2D - Radio Menor = d/1.5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0f 0%, #12121a 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(20, 20, 30, 0.7);
+            border-radius: 15px;
+            border: 1px solid rgba(100, 100, 150, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #4dabf7;
+            text-shadow: 0 0 15px rgba(77, 171, 247, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0c0;
+            margin-bottom: 10px;
+        }
+        
+        .specs {
+            font-size: 1rem;
+            color: #8888aa;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(30, 30, 45, 0.5);
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 900px;
+            height: 750px;
+            background-color: rgba(10, 15, 25, 0.8);
+            border-radius: 15px;
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(100, 150, 255, 0.1);
+            overflow: hidden;
+            border: 2px solid rgba(60, 80, 120, 0.3);
+        }
+        
+        #rubikCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        
+        .controls {
+            width: 500px;
+            background-color: rgba(20, 25, 40, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(60, 80, 120, 0.3);
+        }
+        
+        h2 {
+            color: #4dabf7;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .instructions {
+            text-align: left;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            color: #c0c0e0;
+            background-color: rgba(30, 35, 50, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .instructions strong {
+            color: #4dabf7;
+        }
+        
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: rgba(30, 35, 50, 0.6);
+            border-radius: 10px;
+        }
+        
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+        }
+        
+        .color-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .controls-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(60, 80, 120, 0.3);
+        }
+        
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #4dabf7, #339af0);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #339af0, #228be6);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        button.reset {
+            background: linear-gradient(135deg, #ff6b6b, #fa5252);
+        }
+        
+        button.reset:hover {
+            background: linear-gradient(135deg, #fa5252, #e03131);
+        }
+        
+        button.random {
+            background: linear-gradient(135deg, #94d82d, #82c91e);
+        }
+        
+        button.random:hover {
+            background: linear-gradient(135deg, #82c91e, #74b816);
+        }
+        
+        .footer {
+            margin-top: 20px;
+            color: #8888aa;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 20px;
+            background: rgba(20, 20, 30, 0.7);
+            border-radius: 10px;
+            width: 100%;
+            border: 1px solid rgba(60, 80, 120, 0.2);
+        }
+        
+        .vertex-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(30, 35, 50, 0.6);
+            border-radius: 10px;
+        }
+        
+        .vertex-data {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .vertex-label {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #a0a0c0;
+        }
+        
+        .vertex-angle {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4dabf7;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(30, 35, 50, 0.6);
+            border-radius: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #94d82d;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0a0c0;
+        }
+        
+        .group-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(30, 35, 50, 0.6);
+            border-radius: 10px;
+        }
+        
+        .group-item {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 8px 15px;
+            background-color: rgba(40, 45, 65, 0.7);
+            border-radius: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            font-size: 0.9rem;
+        }
+        
+        .math-info {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(30, 40, 60, 0.6);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .math-formula {
+            color: #94d82d;
+            font-family: monospace;
+            margin: 5px 0;
+        }
+        
+        .calculation {
+            color: #4dabf7;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 1350px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .canvas-container, .controls {
+                width: 95%;
+                max-width: 900px;
+            }
+            
+            .canvas-container {
+                height: 650px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .canvas-container {
+                height: 500px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TRIÁNGULO RUBIK 2D - RADIO MENOR = d/1.5</h1>
+            <p class="subtitle">Triángulo equilátero con radio menor corregido: d/1.5</p>
+            <div class="specs">
+                d = 320px • Radio mayor = d = 320px • Radio menor = d/1.5 = 213px • 6 grupos de 9 puntos
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="canvas-container">
+                <canvas id="rubikCanvas" width="900" height="750">
+                    Tu navegador no soporta el elemento canvas.
+                </canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="controls-section">
+                    <h2>Geometría con Radio Menor Corregido</h2>
+                    <div class="instructions">
+                        <p><strong>Especificaciones matemáticas CORREGIDAS:</strong></p>
+                        <ul>
+                            <li>Triángulo equilátero invertido (todos los lados iguales)</li>
+                            <li>Distancia entre vértices: d = 320px</li>
+                            <li><strong>Radio mayor</strong> = d = 320px (igual a distancia entre vértices)</li>
+                            <li><strong>Radio menor</strong> = d / 1.5 = 213.33px (CORRECCIÓN APLICADA)</li>
+                            <li><strong>Radio medio</strong> = (radio mayor + radio menor) / 2 = 266.67px</li>
+                            <li>3 círculos concéntricos por vértice (9 círculos total)</li>
+                            <li>Círculos solo con bordes, sin relleno de color</li>
+                        </ul>
+                        
+                        <div class="math-info">
+                            <p><strong>Fórmulas utilizadas:</strong></p>
+                            <p class="math-formula">d = distancia entre vértices = 320px</p>
+                            <p class="math-formula">Radio mayor = d = 320px</p>
+                            <p class="math-formula">Radio menor = d / 1.5 = 320 / 1.5 = 213.33px</p>
+                            <p class="math-formula">Radio medio = (320 + 213.33) / 2 = 266.67px</p>
+                            <div class="calculation">
+                                d/1.5 = 320 ÷ 1.5 = 213.33px
+                            </div>
+                        </div>
+                        
+                        <p><strong>Puntos de intersección:</strong></p>
+                        <ul>
+                            <li><strong>54 puntos de color</strong> organizados en 6 grupos</li>
+                            <li>Cada grupo tiene 9 puntos del mismo color</li>
+                            <li>Los grupos se determinan por la combinación de radios que se intersectan</li>
+                            <li>Los colores de los grupos son: Rojo, Verde, Azul, Amarillo, Magenta, Cian</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="controls-section">
+                    <h2>Grupos de Colores</h2>
+                    <div class="color-palette">
+                        <div class="color-item">
+                            <div class="color-box" style="background-color: #ff0000; box-shadow: 0 0 10px #ff0000;"></div>
+                            <span>Grupo Rojo</span>
+                            <small>9 puntos</small>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-box" style="background-color: #00ff00; box-shadow: 0 0 10px #00ff00;"></div>
+                            <span>Grupo Verde</span>
+                            <small>9 puntos</small>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-box" style="background-color: #0000ff; box-shadow: 0 0 10px #0000ff;"></div>
+                            <span>Grupo Azul</span>
+                            <small>9 puntos</small>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-box" style="background-color: #ffff00; box-shadow: 0 0 10px #ffff00;"></div>
+                            <span>Grupo Amarillo</span>
+                            <small>9 puntos</small>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-box" style="background-color: #ff00ff; box-shadow: 0 0 10px #ff00ff;"></div>
+                            <span>Grupo Magenta</span>
+                            <small>9 puntos</small>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-box" style="background-color: #00ffff; box-shadow: 0 0 10px #00ffff;"></div>
+                            <span>Grupo Cian</span>
+                            <small>9 puntos</small>
+                        </div>
+                    </div>
+                    
+                    <div class="group-info">
+                        <div class="group-item">Grupo 1: Rojo</div>
+                        <div class="group-item">Grupo 2: Verde</div>
+                        <div class="group-item">Grupo 3: Azul</div>
+                        <div class="group-item">Grupo 4: Amarillo</div>
+                        <div class="group-item">Grupo 5: Magenta</div>
+                        <div class="group-item">Grupo 6: Cian</div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="circleCount">9</div>
+                        <div class="stat-label">Círculos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="intersectionCount">54</div>
+                        <div class="stat-label">Puntos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="groupCount">6</div>
+                        <div class="stat-label">Grupos</div>
+                    </div>
+                </div>
+                
+                <div class="vertex-info">
+                    <div class="vertex-data">
+                        <div class="vertex-label">Vértice 1</div>
+                        <div class="vertex-angle" id="angle1">0°</div>
+                    </div>
+                    <div class="vertex-data">
+                        <div class="vertex-label">Vértice 2</div>
+                        <div class="vertex-angle" id="angle2">0°</div>
+                    </div>
+                    <div class="vertex-data">
+                        <div class="vertex-label">Vértice 3</div>
+                        <div class="vertex-angle" id="angle3">0°</div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button id="resetBtn" class="reset">Reiniciar Posiciones</button>
+                    <button id="randomBtn" class="random">Rotación Aleatoria</button>
+                    <button id="hintBtn">Mostrar Instrucciones</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Proyecto Triángulo Rubik 2D - Radio menor = d/1.5 | d = 320px • Radio mayor = 320px • Radio menor = 213.33px</p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">Radio menor corregido: 320 ÷ 1.5 = 213.33px • Radio medio = (320 + 213.33)/2 = 266.67px • 6 grupos de 9 puntos cada uno</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuración del canvas y contexto
+        const canvas = document.getElementById('rubikCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Elementos de información
+        const angle1Element = document.getElementById('angle1');
+        const angle2Element = document.getElementById('angle2');
+        const angle3Element = document.getElementById('angle3');
+        
+        // Parámetros del triángulo equilátero
+        const sideLength = 320; // Distancia entre vértices (d)
+        const triangleHeight = sideLength * Math.sqrt(3) / 2; // Altura triángulo equilátero
+        
+        // Centro del canvas
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        // Vértices del triángulo equilátero invertido
+        // Vértice 1: arriba izquierda
+        const vertex1 = { 
+            x: centerX - sideLength / 2, 
+            y: centerY - triangleHeight / 2 + 30
+        };
+        
+        // Vértice 2: arriba derecha
+        const vertex2 = { 
+            x: centerX + sideLength / 2, 
+            y: centerY - triangleHeight / 2 + 30
+        };
+        
+        // Vértice 3: abajo centro (vértice inferior)
+        const vertex3 = { 
+            x: centerX, 
+            y: centerY + triangleHeight / 2 - 30
+        };
+        
+        // Calcular distancias entre vértices (deberían ser iguales)
+        const dist12 = Math.sqrt(
+            Math.pow(vertex2.x - vertex1.x, 2) + 
+            Math.pow(vertex2.y - vertex1.y, 2)
+        );
+        
+        // Radios según especificaciones CORREGIDAS
+        const rMajor = dist12; // Radio mayor = distancia entre vértices
+        const rMinor = dist12 / 1.5; // Radio menor = d/1.5 (CORRECCIÓN)
+        const rMiddle = (rMajor + rMinor) / 2; // Radio medio = promedio
+        
+        // Radios para cada vértice (los 3 vértices usan los mismos radios)
+        const radii = [rMinor, rMiddle, rMajor]; // [menor, medio, mayor]
+        
+        // Mostrar valores de radios en consola para verificación
+        console.log(`Radio mayor: ${rMajor.toFixed(2)}px`);
+        console.log(`Radio menor: ${rMinor.toFixed(2)}px (d/1.5)`);
+        console.log(`Radio medio: ${rMiddle.toFixed(2)}px`);
+        
+        // Ángulos de rotación de cada conjunto de círculos (por vértice)
+        let vertexAngles = [0, 0, 0]; // [vértice1, vértice2, vértice3]
+        
+        // Colores para los 6 grupos (cada grupo tiene un color)
+        const groupColors = [
+            '#ff0000', // Grupo 1: Rojo
+            '#00ff00', // Grupo 2: Verde
+            '#0000ff', // Grupo 3: Azul
+            '#ffff00', // Grupo 4: Amarillo
+            '#ff00ff', // Grupo 5: Magenta
+            '#00ffff'  // Grupo 6: Cian
+        ];
+        
+        // Estado para el arrastre del mouse
+        let isDragging = false;
+        let draggedVertex = -1;
+        let lastMousePos = { x: 0, y: 0 };
+        
+        // Inicialización
+        function init() {
+            draw();
+            
+            // Event listeners para el mouse
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('mouseleave', handleMouseUp);
+            
+            // Event listeners para los botones
+            document.getElementById('resetBtn').addEventListener('click', resetCircles);
+            document.getElementById('randomBtn').addEventListener('click', randomizeCircles);
+            document.getElementById('hintBtn').addEventListener('click', showHint);
+            
+            // Event listeners para pantallas táctiles
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', handleTouchEnd);
+        }
+        
+        // Dibujar todo el triángulo de Rubik
+        function draw() {
+            // Limpiar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar triángulo equilátero invertido
+            drawTriangle();
+            
+            // Dibujar todos los círculos (9 círculos, solo bordes)
+            drawAllCircles();
+            
+            // Dibujar puntos de intersección (54 puntos en 6 grupos)
+            drawAllIntersectionPoints();
+            
+            // Actualizar información de ángulos
+            updateAngleInfo();
+        }
+        
+        // Dibujar el triángulo equilátero invertido
+        function drawTriangle() {
+            ctx.beginPath();
+            ctx.moveTo(vertex1.x, vertex1.y);
+            ctx.lineTo(vertex2.x, vertex2.y);
+            ctx.lineTo(vertex3.x, vertex3.y);
+            ctx.closePath();
+            
+            // Relleno muy transparente
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+            ctx.fill();
+            
+            // Borde sutil del triángulo
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.stroke();
+            
+            // Dibujar vértices como puntos pequeños
+            drawVertexPoint(vertex1, '#4dabf7', 'V1');
+            drawVertexPoint(vertex2, '#4dabf7', 'V2');
+            drawVertexPoint(vertex3, '#4dabf7', 'V3');
+            
+            // Mostrar distancias entre vértices
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#8888aa';
+            ctx.textAlign = 'center';
+            
+            // Distancia V1-V2
+            const mid12 = {
+                x: (vertex1.x + vertex2.x) / 2,
+                y: (vertex1.y + vertex2.y) / 2 - 15
+            };
+            ctx.fillText(`d = ${Math.round(dist12)}px`, mid12.x, mid12.y);
+        }
+        
+        // Dibujar un punto en un vértice con etiqueta
+        function drawVertexPoint(vertex, color, label) {
+            // Punto del vértice
+            ctx.beginPath();
+            ctx.arc(vertex.x, vertex.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.stroke();
+            
+            // Etiqueta
+            ctx.font = 'bold 14px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, vertex.x, vertex.y - 15);
+        }
+        
+        // Dibujar los 9 círculos (3 en cada vértice) - SOLO BORDES
+        function drawAllCircles() {
+            // Vértice 1
+            for (let i = 0; i < 3; i++) {
+                drawCircleOutline(
+                    vertex1.x, 
+                    vertex1.y, 
+                    radii[i], 
+                    vertexAngles[0],
+                    i
+                );
+            }
+            
+            // Vértice 2
+            for (let i = 0; i < 3; i++) {
+                drawCircleOutline(
+                    vertex2.x, 
+                    vertex2.y, 
+                    radii[i], 
+                    vertexAngles[1],
+                    i
+                );
+            }
+            
+            // Vértice 3
+            for (let i = 0; i < 3; i++) {
+                drawCircleOutline(
+                    vertex3.x, 
+                    vertex3.y, 
+                    radii[i], 
+                    vertexAngles[2],
+                    i
+                );
+            }
+            
+            // Mostrar valores de radios (con la corrección)
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#a0a0c0';
+            ctx.textAlign = 'left';
+            
+            // Radio menor (d/1.5)
+            ctx.fillText(`Radio menor: ${radii[0].toFixed(1)}px`, 20, 30);
+            ctx.fillText(`(d/1.5 = ${dist12.toFixed(0)} ÷ 1.5)`, 20, 45);
+            
+            // Radio medio
+            ctx.fillText(`Radio medio: ${radii[1].toFixed(1)}px`, 20, 70);
+            ctx.fillText(`(promedio de mayor y menor)`, 20, 85);
+            
+            // Radio mayor
+            ctx.fillText(`Radio mayor: ${radii[2].toFixed(1)}px`, 20, 110);
+            ctx.fillText(`(d = ${dist12.toFixed(0)}px)`, 20, 125);
+            
+            // Mostrar cálculo d/1.5
+            ctx.fillText(`Cálculo: d/1.5 = ${dist12.toFixed(0)} ÷ 1.5 = ${radii[0].toFixed(1)}px`, 20, 150);
+        }
+        
+        // Dibujar un círculo SOLO con borde (sin color de relleno)
+        function drawCircleOutline(x, y, radius, angle, circleIndex) {
+            // Dibujar el círculo (solo contorno)
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            
+            // Estilo del borde según el círculo (interno, medio, externo)
+            ctx.lineWidth = circleIndex === 0 ? 1.2 : (circleIndex === 1 ? 1.5 : 2);
+            
+            // Color del borde: gris muy claro con opacidad baja
+            const opacity = 0.1 + circleIndex * 0.05;
+            ctx.strokeStyle = `rgba(200, 200, 220, ${opacity})`;
+            ctx.stroke();
+            
+            // Marcar líneas de referencia para mostrar la rotación
+            drawRotationReference(x, y, radius, angle, circleIndex);
+        }
+        
+        // Dibujar líneas de referencia para mostrar la rotación
+        function drawRotationReference(x, y, radius, angle, circleIndex) {
+            // Dibujar línea desde el centro hasta el borde en el ángulo de rotación
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            const endX = x + Math.cos(angle) * radius;
+            const endY = y + Math.sin(angle) * radius;
+            ctx.lineTo(endX, endY);
+            
+            // Estilo de la línea de referencia
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = `rgba(100, 150, 255, ${0.3 + circleIndex * 0.1})`;
+            ctx.stroke();
+            
+            // Punto en el extremo de la línea de referencia
+            ctx.beginPath();
+            ctx.arc(endX, endY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(100, 150, 255, ${0.6 + circleIndex * 0.1})`;
+            ctx.fill();
+        }
+        
+        // Dibujar todos los puntos de intersección (54 puntos en 6 grupos)
+        function drawAllIntersectionPoints() {
+            const vertices = [
+                { vertex: vertex1, angle: vertexAngles[0], id: 0 },
+                { vertex: vertex2, angle: vertexAngles[1], id: 1 },
+                { vertex: vertex3, angle: vertexAngles[2], id: 2 }
+            ];
+            
+            // Contador de puntos por grupo
+            const groupCounts = [0, 0, 0, 0, 0, 0];
+            let totalPoints = 0;
+            
+            // Para cada par de vértices (3 combinaciones)
+            for (let v1 = 0; v1 < vertices.length; v1++) {
+                for (let v2 = v1 + 1; v2 < vertices.length; v2++) {
+                    // Para cada combinación de radios (3x3 = 9 intersecciones por par)
+                    for (let r1 = 0; r1 < 3; r1++) {
+                        for (let r2 = 0; r2 < 3; r2++) {
+                            // Calcular puntos de intersección
+                            const intersections = calculateCircleIntersection(
+                                vertices[v1].vertex.x, vertices[v1].vertex.y, radii[r1],
+                                vertices[v2].vertex.x, vertices[v2].vertex.y, radii[r2]
+                            );
+                            
+                            // Dibujar cada punto de intersección (2 por par de círculos)
+                            if (intersections) {
+                                // Determinar el grupo basado en los vértices y radios
+                                const groupIndex = getGroupIndex(v1, v2, r1, r2);
+                                
+                                // Dibujar primer punto
+                                drawIntersectionPoint(
+                                    intersections.p1, 
+                                    groupColors[groupIndex],
+                                    groupIndex
+                                );
+                                
+                                // Dibujar segundo punto
+                                drawIntersectionPoint(
+                                    intersections.p2, 
+                                    groupColors[groupIndex],
+                                    groupIndex
+                                );
+                                
+                                groupCounts[groupIndex] += 2;
+                                totalPoints += 2;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Actualizar contadores en la interfaz
+            document.getElementById('intersectionCount').textContent = totalPoints;
+            
+            // Mostrar distribución de puntos por grupo
+            updateGroupInfo(groupCounts);
+        }
+        
+        // Determinar el índice del grupo basado en los vértices y radios
+        function getGroupIndex(v1, v2, r1, r2) {
+            // Crear un identificador único para la combinación
+            // Hay 3 vértices, 3 radios, usamos una fórmula para asignar a 6 grupos
+            const vertexPair = v1 * 3 + v2; // Valor entre 0 y 5 (3 pares posibles)
+            const radiusPair = r1 * 3 + r2; // Valor entre 0 y 8 (9 combinaciones)
+            
+            // Asignar grupo de manera que cada grupo tenga aproximadamente 9 puntos
+            // Usamos una fórmula determinista
+            const combined = vertexPair * 9 + radiusPair; // Valor entre 0 y 26 (27 combinaciones)
+            return Math.floor(combined / 4.5) % 6; // Distribuir en 6 grupos
+        }
+        
+        // Dibujar un punto de intersección individual
+        function drawIntersectionPoint(point, color, groupIndex) {
+            // Tamaño del punto basado en el grupo
+            const pointSize = 11 - groupIndex * 0.3;
+            
+            // Dibujar punto
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, pointSize, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            // Borde del punto (más oscuro para contraste)
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = darkenColor(color, 20);
+            ctx.stroke();
+            
+            // Pequeño punto central para destacar
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = lightenColor(color, 30);
+            ctx.fill();
+        }
+        
+        // Calcular la intersección entre dos círculos
+        function calculateCircleIntersection(x0, y0, r0, x1, y1, r1) {
+            // Distancia entre centros
+            const dx = x1 - x0;
+            const dy = y1 - y0;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            
+            // Sin soluciones, los círculos no se intersectan
+            if (d > r0 + r1 || d < Math.abs(r0 - r1)) {
+                return null;
+            }
+            
+            // Punto intermedio
+            const a = (r0 * r0 - r1 * r1 + d * d) / (2 * d);
+            const h = Math.sqrt(r0 * r0 - a * a);
+            
+            // Punto P2
+            const x2 = x0 + (dx * a) / d;
+            const y2 = y0 + (dy * a) / d;
+            
+            // Puntos de intersección
+            const rx = -dy * (h / d);
+            const ry = dx * (h / d);
+            
+            return {
+                p1: { x: x2 + rx, y: y2 + ry },
+                p2: { x: x2 - rx, y: y2 - ry }
+            };
+        }
+        
+        // Oscurecer un color
+        function darkenColor(colorHex, percent) {
+            const color = hexToRgb(colorHex);
+            const factor = 1 - percent / 100;
+            
+            const r = Math.max(0, Math.floor(color.r * factor));
+            const g = Math.max(0, Math.floor(color.g * factor));
+            const b = Math.max(0, Math.floor(color.b * factor));
+            
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+        
+        // Aclarar un color
+        function lightenColor(colorHex, percent) {
+            const color = hexToRgb(colorHex);
+            const factor = 1 + percent / 100;
+            
+            const r = Math.min(255, Math.floor(color.r * factor));
+            const g = Math.min(255, Math.floor(color.g * factor));
+            const b = Math.min(255, Math.floor(color.b * factor));
+            
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+        
+        // Convertir color hex a objeto RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+        
+        // Actualizar información de grupos
+        function updateGroupInfo(groupCounts) {
+            const groupElements = document.querySelectorAll('.group-item');
+            groupElements.forEach((element, index) => {
+                if (index < groupCounts.length) {
+                    element.textContent = `Grupo ${index + 1}: ${groupColors[index].replace('#', '').toUpperCase()} (${groupCounts[index]} puntos)`;
+                }
+            });
+        }
+        
+        // Actualizar información de ángulos en la interfaz
+        function updateAngleInfo() {
+            // Convertir radianes a grados y redondear
+            const angle1Deg = Math.round(vertexAngles[0] * 180 / Math.PI);
+            const angle2Deg = Math.round(vertexAngles[1] * 180 / Math.PI);
+            const angle3Deg = Math.round(vertexAngles[2] * 180 / Math.PI);
+            
+            // Actualizar elementos
+            angle1Element.textContent = `${angle1Deg}°`;
+            angle2Element.textContent = `${angle2Deg}°`;
+            angle3Element.textContent = `${angle3Deg}°`;
+        }
+        
+        // Manejar evento de mouse down
+        function handleMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Determinar qué vértice se ha clickeado
+            draggedVertex = getVertexAtPosition(x, y);
+            
+            if (draggedVertex !== -1) {
+                isDragging = true;
+                lastMousePos = { x, y };
+                canvas.style.cursor = 'grabbing';
+            }
+        }
+        
+        // Determinar qué vértice está en una posición dada
+        function getVertexAtPosition(x, y) {
+            const vertices = [vertex1, vertex2, vertex3];
+            
+            for (let i = 0; i < vertices.length; i++) {
+                const vertex = vertices[i];
+                const distance = Math.sqrt(
+                    Math.pow(x - vertex.x, 2) + Math.pow(y - vertex.y, 2)
+                );
+                
+                // Verificar si el clic está cerca del vértice
+                if (distance <= 30) {
+                    return i;
+                }
+                
+                // Verificar si el clic está dentro del círculo mayor
+                if (distance <= radii[2] + 10) {
+                    return i;
+                }
+            }
+            
+            return -1;
+        }
+        
+        // Manejar evento de mouse move
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Calcular el desplazamiento angular
+            const center = getVertexCenter(draggedVertex);
+            const deltaX = x - lastMousePos.x;
+            const deltaY = y - lastMousePos.y;
+            
+            // Factor de sensibilidad
+            const sensitivity = 0.008;
+            
+            // Actualizar el ángulo del vértice arrastrado
+            vertexAngles[draggedVertex] += (deltaX - deltaY) * sensitivity;
+            
+            // Normalizar el ángulo entre 0 y 2π
+            vertexAngles[draggedVertex] = (vertexAngles[draggedVertex] + Math.PI * 2) % (Math.PI * 2);
+            
+            // Actualizar última posición del mouse
+            lastMousePos = { x, y };
+            
+            // Redibujar
+            draw();
+        }
+        
+        // Obtener el centro de un vértice por su índice
+        function getVertexCenter(index) {
+            switch(index) {
+                case 0: return vertex1;
+                case 1: return vertex2;
+                case 2: return vertex3;
+                default: return { x: 0, y: 0 };
+            }
+        }
+        
+        // Manejar evento de mouse up
+        function handleMouseUp() {
+            isDragging = false;
+            draggedVertex = -1;
+            canvas.style.cursor = 'grab';
+        }
+        
+        // Manejar evento de touch start
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // Determinar qué vértice se ha tocado
+            draggedVertex = getVertexAtPosition(x, y);
+            
+            if (draggedVertex !== -1) {
+                isDragging = true;
+                lastMousePos = { x, y };
+            }
+        }
+        
+        // Manejar evento de touch move
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // Calcular el desplazamiento angular
+            const center = getVertexCenter(draggedVertex);
+            const deltaX = x - lastMousePos.x;
+            const deltaY = y - lastMousePos.y;
+            
+            // Factor de sensibilidad
+            const sensitivity = 0.008;
+            
+            // Actualizar el ángulo del vértice arrastrado
+            vertexAngles[draggedVertex] += (deltaX - deltaY) * sensitivity;
+            
+            // Normalizar el ángulo entre 0 y 2π
+            vertexAngles[draggedVertex] = (vertexAngles[draggedVertex] + Math.PI * 2) % (Math.PI * 2);
+            
+            // Actualizar última posición del touch
+            lastMousePos = { x, y };
+            
+            // Redibujar
+            draw();
+        }
+        
+        // Manejar evento de touch end
+        function handleTouchEnd() {
+            isDragging = false;
+            draggedVertex = -1;
+        }
+        
+        // Reiniciar círculos a posición inicial
+        function resetCircles() {
+            vertexAngles = [0, 0, 0];
+            draw();
+            
+            showNotification('Todos los círculos reiniciados a posición inicial');
+        }
+        
+        // Aleatorizar posiciones de los círculos
+        function randomizeCircles() {
+            for (let i = 0; i < 3; i++) {
+                vertexAngles[i] = Math.random() * Math.PI * 2;
+            }
+            draw();
+            
+            showNotification('Círculos rotados aleatoriamente');
+        }
+        
+        // Mostrar ayuda
+        function showHint() {
+            alert('TRIÁNGULO RUBIK 2D - RADIO MENOR = d/1.5\n\n' +
+                  'ESPECIFICACIONES MATEMÁTICAS CORREGIDAS:\n' +
+                  '• Triángulo equilátero invertido (todos los lados iguales)\n' +
+                  '• Distancia entre vértices: d = 320px\n' +
+                  '• Radio mayor = d = 320px\n' +
+                  '• Radio menor = d/1.5 = 213.33px (CORRECCIÓN APLICADA)\n' +
+                  '• Radio medio = (320 + 213.33)/2 = 266.67px\n\n' +
+                  'CÁLCULO:\n' +
+                  '• d/1.5 = 320 ÷ 1.5 = 213.33px\n\n' +
+                  'GEOMETRÍA:\n' +
+                  '• 3 vértices (V1, V2, V3)\n' +
+                  '• 3 círculos concéntricos por vértice (9 círculos total)\n' +
+                  '• Círculos solo tienen bordes, sin color de relleno\n\n' +
+                  'PUNTOS DE INTERSECCIÓN:\n' +
+                  '• 54 puntos de color organizados en 6 grupos\n' +
+                  '• Cada grupo tiene 9 puntos del mismo color\n' +
+                  '• Colores de grupos: Rojo, Verde, Azul, Amarillo, Magenta, Cian\n\n' +
+                  'INTERACCIÓN:\n' +
+                  '• Arrastra cualquier círculo para rotar TODOS los círculos de ese vértice\n' +
+                  '• Los puntos de intersección se recolocan automáticamente\n' +
+                  '• Usa los botones para reiniciar o crear rotaciones aleatorias');
+        }
+        
+        // Mostrar notificación temporal
+        function showNotification(message) {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #4dabf7, #339af0);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                z-index: 1000;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+                font-weight: bold;
+                animation: fadeInOut 3s ease-in-out;
+                max-width: 300px;
+            `;
+            
+            // Agregar estilos de animación
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translateY(-20px); }
+                    15% { opacity: 1; transform: translateY(0); }
+                    85% { opacity: 1; transform: translateY(0); }
+                    100% { opacity: 0; transform: translateY(-20px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Eliminar después de 3 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+                if (style.parentNode) {
+                    document.head.removeChild(style);
+                }
+            }, 3000);
+        }
+        
+        // Inicializar la aplicación cuando se carga la página
+        window.onload = init;
+    </script>
+</body>
+</html>
